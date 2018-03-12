@@ -20,6 +20,7 @@ stages:
     script: |
       #!/bin/bash
       bx cs clusters
+- name: DEPLOY
   inputs:
   - type: job
     stage: BUILD
