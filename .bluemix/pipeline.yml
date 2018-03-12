@@ -1,30 +1,12 @@
 ---
 stages:
-- name: BUILD
+- name: DEPLOY
   inputs:
   - type: git
     branch: master
     service: ${GIT_REPO}    
   triggers:
   - type: commit
-  jobs:
-  - name: Container build
-    type: builder
-    build_type: cr
-    artifact_dir: output
-    target:
-      region_id: ${REGISTRY_REGION_ID}
-      api_key: ${API_KEY}
-    namespace: ${REGISTRY_NAMESPACE}
-    image_name: ${CF_APP_NAME}
-    script: |
-      #!/bin/bash
-      bx cs clusters
-- name: DEPLOY
-  inputs:
-  - type: job
-    stage: BUILD
-    job: Container build
   jobs:
   - name: Deploy Kubernetes Pod
     type: deployer
@@ -34,3 +16,4 @@ stages:
       kubernetes_cluster: ${PROD_CLUSTER_NAME}
     script: |
       #!/bin/bash
+      bx cs clusters
