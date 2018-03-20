@@ -4,7 +4,7 @@ stages:
   inputs:
   - type: git
     branch: master
-    service: ${GIT_REPO}    
+    service: ${GIT_REPO}
   triggers:
   - type: commit
   jobs:
@@ -16,4 +16,26 @@ stages:
       kubernetes_cluster: ${PROD_CLUSTER_NAME}
     script: |
       #!/bin/bash
-      bx cs clusters
+      bx plugin install machine-learning -r bluemix
+      bx cf create-service pm-20 lite MAX-WML
+      sleep 3
+      bx cf create-service-key MAX-WML MAX-WML-Key
+      sleep 3
+      bx cf service-key MAX-WML MAX-WML-Key > key.txt
+      export ML_INSTANCE=$(awk ' /instance_id/ {print $2;exit}' key.txt | tr -d "\",")
+      export ML_USERNAME=$(awk ' /username/ {print $2;exit}' key.txt | tr -d "\",")
+      export ML_PASSWORD=$(awk ' /password/ {print $2;exit}' key.txt | tr -d "\",")
+      export ML_ENV=$(awk ' /url/ {print $2;exit}' key.txt | tr -d "\",")
+      bx ml list training-runs
+      bx ml train sample-job.zip manifest-WML.yaml
+      trainingid=$(bx ml train sample-job.zip manifest-WML.yaml | awk ' /Model/ {print $3;exit}' | tr -d "\'")
+      if [ -z "$trainingid" ]; then
+        echo "Training Job failed to submit. Exiting..."
+        exit 1
+      fi
+      while [ -z "$(bx ml list training-runs | grep $trainingid | grep completed)" ]; do
+        echo "Waiting job to be completed"
+        sleep 10
+      done
+      modelid=$(bx ml store training-runs $trainingid | awk ' /Model/ {print $6;exit}' | tr -d "\'")
+      bx ml deploy $modelid test-model
