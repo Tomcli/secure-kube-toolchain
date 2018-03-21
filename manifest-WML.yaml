@@ -16,18 +16,18 @@ model_definition:
       name: k80
 training_data_reference:
   connection:
-    access_key_id: sCHyfcY2PgY5FMB3ylwb
+    access_key_id: xxx
     endpoint_url: https://s3-api.us-geo.objectstorage.softlayer.net
-    secret_access_key: 9zzAPuBAFNQxnrijDyAhXeNwVW0LB79Jr3bBpPws
+    secret_access_key: xxx
   name: sl-internal-os
   source:
     bucket: tf-trained-model
   type: s3
 training_results_reference:
   connection:
-    access_key_id: sCHyfcY2PgY5FMB3ylwb
+    access_key_id: xxx
     endpoint_url: https://s3-api.us-geo.objectstorage.softlayer.net
-    secret_access_key: 9zzAPuBAFNQxnrijDyAhXeNwVW0LB79Jr3bBpPws
+    secret_access_key: xxx
   name: sl-internal-os-something
   target:
     bucket: tf-trained-model-ffdl
